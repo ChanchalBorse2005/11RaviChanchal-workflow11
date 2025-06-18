@@ -1,0 +1,740 @@
+{
+  "name": "Multi agent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": "={{ [\"message\"] || \"\" }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        360
+      ],
+      "id": "df3070a6-9a69-4e21-ad75-ef4f1525ee9c",
+      "name": "Telegram Trigger",
+      "webhookId": "9e0b4beb-c23e-4492-9f3e-1a2daf7d4701",
+      "credentials": {
+        "telegramApi": {
+          "id": "4Y71r2wC2D3ksHyr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appKtJDyItCEqA2Qi",
+          "mode": "list",
+          "cachedResultName": "ai memory",
+          "cachedResultUrl": "https://airtable.com/appKtJDyItCEqA2Qi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblSnlKZIMjJzYxxf",
+          "mode": "list",
+          "cachedResultName": "Table 2",
+          "cachedResultUrl": "https://airtable.com/appKtJDyItCEqA2Qi/tblSnlKZIMjJzYxxf"
+        },
+        "returnAll": false,
+        "limit": 50,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -40,
+        360
+      ],
+      "id": "57bc5149-b312-45fb-9165-6863bd5167aa",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "SySFBMwHLuzSQgHG",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "memory"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        340,
+        360
+      ],
+      "id": "d5e42fbe-71cf-462f-a886-096046ac6ed5",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        580,
+        180
+      ],
+      "id": "467a29d6-06c1-49f5-be85-8c2eabe1e1de",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=You are a friendly AI assistant currently talking to Rassoul. Your role is to act as the ultimate personal assistant whose sole job is to route user queries to the correct tool. You do not write emails, create summaries, or produce content directly—instead, you decide which tool to call based on the user’s request.\n\nKey Responsibilities:\nRouting and Tool Selection:\n\nDetermine which tool to use based on the user's query.\nThe available tools are:\nemailAgent (for sending or drafting emails)\ncalendarAgent (for creating calendar events)\ncontactAgent (to get, update, or add contact information; this must be used first for any action involving sending emails or creating calendar events with attendees)\ncontentCreator (for creating blog posts)\nTavily (for web searches)\nMemory Management:\n\nWhen a user sends a new message, assess if it contains noteworthy information.\nCheck if the user has mentioned the name of the person they are conversing with. If the name is provided, verify if it exists in their contacts. If found, store the first and last name in memory. If the name is not mentioned, update the memory accordingly.\nIf it does,wait for first name and last name from conatct tool and immediately use the Save Memory tool to store this information without notifying the user.\nThis helps keep track of any important details provided during the conversation.\n \nnote dont share person contact details use it to save in memory only \nNote: Read the most recent user memories using the provided JSON snippet:\n{{ $json.memory }}\nAlso, keep in mind the current time/day as given:\n{{ $now }}\nAction Guidelines:\n\nEmail and Calendar Actions:\nAlways first use the contactAgent to retrieve the necessary contact details (such as email addresses) before sending any email or creating calendar events.\nOnce you have the contact information, pass it along with the appropriate query to emailAgent or calendarAgent.\nContent Creation:\nFor tasks like blog post creation, route the query to the contentCreator tool.\nWeb Searches:\nUse Tavily to perform any necessary web searches when the user's query involves real-time data, news, or other up-to-date content.\nGeneral Principles:\n\nYou are not to generate or compose the content (e.g., writing emails or blog posts) yourself. Your sole task is to direct queries to the right tool based on the user’s intent.\nAlways adhere to the provided guidelines regarding tool usage and memory storage, ensuring seamless and efficient assistance for the user.\nKeep the current date/time and any previously saved memories (using the JSON snippets provided) in mind when making decisions."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        920,
+        180
+      ],
+      "id": "77e8e5f6-8dd0-4995-a8a7-d2c26e48265c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        640
+      ],
+      "id": "7cc4f33f-f9b1-4b38-875b-912e284aba29",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "jbrHeu6ZZCch9E9B",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Text"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        640
+      ],
+      "id": "39fabb5c-cb20-46e2-afb2-2abc5593b8cc",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appKtJDyItCEqA2Qi",
+          "mode": "list",
+          "cachedResultName": "ai memory",
+          "cachedResultUrl": "https://airtable.com/appKtJDyItCEqA2Qi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblSnlKZIMjJzYxxf",
+          "mode": "list",
+          "cachedResultName": "Table 2",
+          "cachedResultUrl": "https://airtable.com/appKtJDyItCEqA2Qi/tblSnlKZIMjJzYxxf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Memory": "={{ $('Merge').item.json.text }}",
+            "Name of contact": "={{ $fromAI('Name', 'name of the pertion with whome converstion happend') }}",
+            "last name of contact ": "={{ $fromAI('last_name_of_contact_', `Last name of the person with whom conversion happened `, 'string') }}"
+          },
+          "matchingColumns": [
+            "memory",
+            "Name of contact"
+          ],
+          "schema": [
+            {
+              "id": "Name of contact",
+              "displayName": "Name of contact",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last name of contact ",
+              "displayName": "last name of contact ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Memory",
+              "displayName": "Memory",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Modified",
+              "displayName": "Last Modified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        640
+      ],
+      "id": "d48abcb1-466c-4033-a5ba-f87fd138b04b",
+      "name": "memory tool",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "SySFBMwHLuzSQgHG",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1660,
+        180
+      ],
+      "id": "95bda3db-1583-4828-b160-c9dfa80ac48a",
+      "name": "Telegram",
+      "webhookId": "0de65caf-c60b-4cdc-b1d0-6a6fb05c7dc5",
+      "credentials": {
+        "telegramApi": {
+          "id": "4Y71r2wC2D3ksHyr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "96029ce0-4895-466e-84a5-20485b5ecaa2",
+                    "leftValue": "{{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -240,
+        140
+      ],
+      "id": "22b057fd-91ee-4567-aa49-f190e2cb5d14",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e047afca-2fbb-4405-958e-19908d2b60bc",
+      "name": "Telegram1",
+      "webhookId": "d04b5bdf-1759-48b7-b617-59d45c4bc7c2",
+      "credentials": {
+        "telegramApi": {
+          "id": "4Y71r2wC2D3ksHyr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        280,
+        0
+      ],
+      "id": "aa885534-eb8b-490a-9a0a-fef6cc1e9bcd",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "jbrHeu6ZZCch9E9B",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d6edb18-35c4-447b-8e8a-d75c873be2e3",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        140,
+        160
+      ],
+      "id": "e9b06c06-29de-4891-8440-7e5a7a4f5127",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "name": "emailAgent",
+        "description": "Call this tool for any email actions.",
+        "workflowId": {
+          "__rl": true,
+          "value": "G58GkEkAOoZ4CMKx",
+          "mode": "list",
+          "cachedResultName": "Email"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        880,
+        640
+      ],
+      "id": "e4b6c8b9-ca2d-411f-a92f-e5a46ac10e37",
+      "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {
+        "name": "calendarAgent",
+        "description": "Call this tool for any calendar action.",
+        "workflowId": {
+          "__rl": true,
+          "value": "KQE8HtkYfUpKiMAD",
+          "mode": "list",
+          "cachedResultName": "calender"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        640
+      ],
+      "id": "0b0ec2fa-75fe-4af8-83e2-f01adc1d12fe",
+      "name": "Call n8n Workflow Tool1"
+    },
+    {
+      "parameters": {
+        "name": "contactAgent",
+        "description": "Call this tool for any contact related actions.",
+        "workflowId": {
+          "__rl": true,
+          "value": "dnJcPK0gt6DbG9JN",
+          "mode": "list",
+          "cachedResultName": "contact"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        640
+      ],
+      "id": "c55e5be1-3b36-475c-8243-1e2cf5bc59dd",
+      "name": "Call n8n Workflow Tool2"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to search the internet",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"api_key\": \"your-api-key\",\n    \"query\": \"{searchTerm}\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": true,\n    \"topic\": \"news\",\n    \"include_raw_content\": true,\n    \"max_results\": 3\n} ",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "searchTerm",
+              "description": "What the user has requested to search the internet for"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        660
+      ],
+      "id": "5fbbb8a0-af76-44d6-977c-741bc9caa764",
+      "name": "Tavily"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        640
+      ],
+      "id": "14dd6e87-cea2-4730-b968-3719a528821b",
+      "name": "Calculator"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "548890b4-e40a-44d0-a9ee-387420a77a61",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9119dd5093a9a852a4b84bfd051e4af1375db36fcf05ecbc5ef03ec0d82d674c"
+  },
+  "id": "n2RG8DyxGfMMo2D9",
+  "tags": [
+    {
+      "createdAt": "2025-03-02T19:19:28.994Z",
+      "updatedAt": "2025-03-02T19:19:28.994Z",
+      "id": "jbE0plBkGw2Io7Tt",
+      "name": "N8N Template"
+    }
+  ]
+}

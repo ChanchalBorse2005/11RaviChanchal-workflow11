@@ -1,7 +1,8 @@
+
 # 11RaviChanchal-workflow11
 my collection of  automation workflow built using n8n 
 
-about new1
+about new1.json
 Instagram x AI Workflow – Chanchal Bose
 
  What This Does

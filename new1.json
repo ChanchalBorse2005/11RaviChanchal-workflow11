@@ -1,0 +1,176 @@
+{
+  "name": "new1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1860,
+        320
+      ],
+      "id": "b99744c2-8924-47cc-bf05-092f264e694a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "73fca8a3-a7fd-40d8-ab18-6caa1c61c37a",
+              "name": "username",
+              "value": "nike",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1620,
+        320
+      ],
+      "id": "f75cff98-3aac-4752-b54d-e362e09c2432",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      bio: item.json.bio || \"No bio\",\n      image: item.json.displayUrl || item.json.thumbnailUrl || \"\",\n      caption: item.json.caption || \"No caption\"\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1180,
+        320
+      ],
+      "id": "786e759d-dd78-4d9c-8aff-0a7b226330ef",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $items.map(post => `\n## Post ${post.json.number}\n🖼️ ![](${post.json.image})\n\n📝 **Caption:** ${post.json.caption}  \n❤️ **Likes:** ${post.json.likes}  \n💬 **Comments:** ${post.json.comments}  \n🕒 **Posted:** ${post.json.timestamp}\n\n---`).join('\\n') }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        320
+      ],
+      "id": "f4504e67-12f8-4665-a16b-82359c27cddf",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "=<table>\n  <tr>\n    {{ $items.map((item, index) => `\n      ${index % 4 === 0 ? '</tr><tr>' : ''}\n      <td style=\"text-align: center; padding: 10px;\">\n        <img src=\"${item.json.image}\" width=\"150\" height=\"150\"/><br/>\n        <b>Likes:</b> ${item.json.likes || 0} <br/>\n        <b>Comments:</b> ${item.json.comments || 0}\n      </td>\n    `).join('') }}\n  </tr>\n</table>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        320
+      ],
+      "id": "4ea58cda-1a8b-427e-89af-414357a02229",
+      "name": "Grid display"
+    },
+    {
+      "parameters": {
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1400,
+        320
+      ],
+      "id": "29c9bb8c-48a6-4848-ac02-009963ef1019",
+      "name": "INSTA data fetch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "INSTA data fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Grid display",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grid display": {
+      "main": [
+        []
+      ]
+    },
+    "INSTA data fetch": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eb9da237-e7fe-4f7a-a37b-849cc7f101d6",
+  "meta": {
+    "instanceId": "17bac0c37c35d09152518ff850599c92c188011e3aa15ff5c4570a5b9499cee9"
+  },
+  "id": "E8w8VYgbVNI1hyiK",
+  "tags": []
+}
